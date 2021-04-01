@@ -282,8 +282,8 @@ export default {
           window.clearInterval(interval);
         }
       }, 1000);
-      send({ email: this.form1.email }).then(data => {
-        this.form1.verifyCode = data;
+      send({ email: this.form1.email }).then(res => {
+        this.form1.verifyCode = res.data;
         // this.$message({
         //   message: "验证码发送成功",
         //   type: "success"
@@ -312,13 +312,12 @@ export default {
         if (validate) {
           this.form1Loading = true;
           register(this.form1)
-            .then(data => {
-              console.log(data);
+            .then(res => {
               this.onRegister({
-                username: data,
+                username: res.data,
                 password: this.form1.password
               });
-              this.$alert(`注册成功！您的账号为${data}`, "提示", {
+              this.$alert(`注册成功！您的账号为${res.data}`, "提示", {
                 type: "success",
                 confirmButtonText: "去登录",
                 showClose: false,

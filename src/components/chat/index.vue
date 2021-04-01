@@ -22,13 +22,13 @@
 import "./index.less";
 import { mapActions, mapGetters } from "vuex";
 import EmediaModal from "../emediaModal/index";
- 
+
 import moment from "moment";
 import _ from "lodash";
 import AddAVMemberModal from "../emediaModal/addAVMemberModal";
 import MultiAVModal from "../emediaModal/multiAVModal";
 import GetGroupInfo from "../group/groupInfo.vue";
-
+import {getFriendList} from  '@/api/user';
 export default {
   data() {
     return {
@@ -80,7 +80,8 @@ export default {
     // 取到黑名单列表值将黑名单匹配用户列表进行筛选
     let blackList = this.$store.state.friendModule.blackList;
     this.$store.commit("changeUserList", blackList);
-    
+    this.getMyFriends()
+
   },
   updated() {
     this.scollBottom();
@@ -136,8 +137,11 @@ export default {
       "onGetGroupBlack",
       "onGetFirendBlack"
     ]),
-    
-     
+    getMyFriends(){
+      getFriendList().then(res => {
+        console.log(res)
+      })
+    },
     handleOpen(key, keyPath) {
       // console.log(key, keyPath);
     },

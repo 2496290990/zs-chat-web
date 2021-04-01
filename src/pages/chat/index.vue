@@ -40,6 +40,9 @@
               <a-menu-item @click="ulClick('1')">
                 <a href="javascript:;">添加好友</a>
               </a-menu-item>
+              <a-menu-item @click="sendApply">
+                <a href="javascript:;">添加好友</a>
+              </a-menu-item>
               <a-menu-item @click="ulClick('2')">
                 <a href="javascript:;">申请入群</a>
               </a-menu-item>
@@ -102,7 +105,7 @@
           @show_add_member_modal="show_add_member_modal"
         />
 
-        <AddFriend ref="addFriendMethods" />
+        <AddFriend ref="addFriendMethods" v-if="parentData.dialogVisible" :parentData="parentData" />
         <GetFriendRequest />
         <FirendBlack ref="firendModel" />
         <AddGroupUser ref="addGroupModel" />
@@ -413,6 +416,19 @@ export default {
     },
     addModalChange() {
       this.$data.showAddOptions = !this.$data.showAddOptions;
+    },
+    //添加好友
+    sendApply(){
+      this.parentData.dialogVisible = true
+      this.parentData.title = '添加好友'
+    },
+    //加入群组
+    joinGroup(){
+      this.$refs.addGroupModel.changeGroupModel();
+    },
+    //创建群组
+    createGroup(){
+      this.$refs.createGroupModel.changeCreateModel();
     },
     ulClick(i) {
       // this.addModalChange();

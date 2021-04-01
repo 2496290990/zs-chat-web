@@ -41,7 +41,7 @@ export function getUser(data) {
     data
   });
 }
-
+/** 编辑用户信息*/
 export function editUser(data) {
   return request({
     url: "/user",
@@ -49,3 +49,20 @@ export function editUser(data) {
     data
   });
 }
+
+/**获取好友列表*/
+export function getFriendList(){
+  return request({
+    url:'/myFriend/query',
+    method:'get'
+  })
+}
+/** 根据输入内容查询用户*/
+export function queryUser(data){
+  return request({
+    url:'/user/queryUser',
+    method:'get',
+    data
+  })
+}
+
