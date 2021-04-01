@@ -112,7 +112,6 @@ export default {
       dialogVisible: false,
       formLabelWidth: "110px",
       active: 0,
-      //steps: ["注册账号", "创建企业", "安全账号", "配置功能"],
       token: "",
       hasRegister: false, // 是否注册
       hasComList: [], // 已注册公司

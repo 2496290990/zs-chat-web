@@ -333,9 +333,6 @@ export default {
       this.dialogVisible = true
       this.parentData.dialogVisible = true
       this.parentData.title='查看个人信息'
-      getUser().then(data => {
-        console.log(data)
-      })
     },
     handleClose(done) {
       this.$confirm('确认关闭？')

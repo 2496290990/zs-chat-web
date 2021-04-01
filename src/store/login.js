@@ -69,7 +69,6 @@ const Login = {
 			context.commit("setRegisterFlag", flag);
 		}
 
-
 	},
 	getters: {
 

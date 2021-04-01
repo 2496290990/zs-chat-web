@@ -1,9 +1,9 @@
 import request from "@/api/request";
 /** 通用文件上传 */
-export function uploadImage(data){
+export function sendEmail(data){
   return request({
-    url: "/commons/uploadImg",
-    method: "POST",
+    url: '/register/sendChange',
+    method:'get',
     data
   })
 }

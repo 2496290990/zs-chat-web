@@ -108,6 +108,7 @@ export default {
     changeBtn(){
       this.readOnly = false
       this.edit = false
+      this.parentData.title = '编辑个人信息'
     },
     handleAvatarSuccess(res, file) {
       this.form.imageUrl = URL.createObjectURL(file.raw)
@@ -135,15 +136,15 @@ export default {
         .catch(_ => {});
     },
     getUser(){
-      getUser().then(data => {
-        this.form.account = data.account
-        this.form.email = data.email
-        this.form.imageUrl = data.accountUrl
-        this.form.name = data.username
-        this.form.phone = data.phone
-        this.form.sex  = data.sex
-        this.form.birth = data.birth
-        this.form.intro = data.intro
+      getUser().then(res => {
+        this.form.account = res.data.account
+        this.form.email = res.data.email
+        this.form.imageUrl = res.data.accountUrl
+        this.form.name = res.data.username
+        this.form.phone = res.data.phone
+        this.form.sex  = res.data.sex
+        this.form.birth = res.data.birth
+        this.form.intro = res.data.intro
       })
     }
   }

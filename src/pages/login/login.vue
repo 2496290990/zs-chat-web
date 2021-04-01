@@ -36,7 +36,8 @@
               class="w-100"
               :loading="loading"
               @click="goLogin"
-              >{{ loading ? "正在登录" : "登 录" }}</el-button
+            >{{ loading ? "正在登录" : "登 录" }}
+            </el-button
             >
           </el-form-item>
           <el-form-item class="register-cnt">
@@ -45,7 +46,7 @@
             <span
               @click="jumpLink('/register')"
               style="color:#409eff;cursor: pointer;"
-              >马上注册</span
+            >马上注册</span
             >
             <el-button type="text" @click="changePassword()">修改密码</el-button>
           </el-form-item>
@@ -57,18 +58,19 @@
 </template>
 
 <script>
-import { login } from "@/api/user";
- import {getUser} from "@/api/user";
+import {login} from "@/api/user";
+import {getUser} from "@/api/user";
 //引入环信api
 import SDK from "../../utils/WebIMConfig";
 import "./index.less";
-import { mapState, mapActions } from "vuex";
+import {mapState, mapActions} from "vuex";
 import changePassword from '@/components/changePassword/index'
+
 let loadingInstance = null;
 
 export default {
   name: "Login",
-  components:{changePassword},
+  components: {changePassword},
   data() {
     const valiUsername = (rule, value, callback) => {
       if (isPhone(value)) {
@@ -86,7 +88,7 @@ export default {
     };
 
     return {
-      // banners: [banner1],
+
 
       loginForm: {
         username: "",
@@ -94,28 +96,28 @@ export default {
       },
       loginRules: {
         username: [
-          { required: true, message: "请输入内容", trigger: "change" }
+          {required: true, message: "请输入内容", trigger: "change"}
         ],
-        password: [{ validator: valiPassword, trigger: "change" }]
+        password: [{validator: valiPassword, trigger: "change"}]
       },
-
       loading: false,
       remember: false,
       redirect: null,
-      parentData:{
+      parentData: {
         showDialog: false
-      }
+      },
+      account:'',
+      hxPwd:''
     };
   },
-  mounted() {},
+  mounted() {
+  },
   methods: {
     userInfo() {
       // Bearer 123123012310123
       getUser()
-        .then(data => {
-          console.log(data);
-          console.log("daa".data);
-          sessionStorage.setItem("userInfo", data.username);
+        .then(res => {
+          sessionStorage.setItem("userInfo", res.data.username);
           this.$message({
             message: "登录成功",
             type: "success"
@@ -123,7 +125,8 @@ export default {
 
           this.$router.push("/chatroom");
         })
-        .finally(() => {});
+        .finally(() => {
+        });
     },
     ...mapActions(["onLogin", "setRegisterFlag", "onRegister"]),
     jumpLink(url) {
@@ -144,21 +147,30 @@ export default {
     // 登录
     goLogin() {
       this.$refs.loginForm.validate(valid => {
-                if (valid) {
-                  this.loading = true;
-                  login(this.loginForm)
-                    .then(data => {
-                      // if(data){}
-                      sessionStorage.setItem(
-                        "Accesstoken",
-                        "Bearer " + data.accessToken
-                      );
-                      this.onLogin({
-                        username: this.loginForm.username,
-                password: this.loginForm.password
-              }).then(data => {
-                this.userInfo();
-              });
+        if (valid) {
+          this.loading = true;
+          login(this.loginForm)
+            .then(res => {
+              let myUser = JSON.stringify(res.data)
+              sessionStorage.setItem("user",myUser)
+              if(res.code === 200){
+                sessionStorage.setItem("MyUser",JSON.stringify(res.data));
+                sessionStorage.setItem("Accesstoken", "Bearer " + res.data.accessToken );
+                this.account = res.data.account
+                this.hxPwd = res.data.hxPwd
+                this.onLogin({
+                  username: this.account,
+                  password: this.hxPwd
+                }).then(data => {
+                  this.userInfo();
+                });
+              }else{
+                this.$message({
+                  type:'error',
+                  message:'用户名或密码错误'
+                })
+              }
+
             })
             .finally(() => {
               this.loading = false;
@@ -167,7 +179,7 @@ export default {
       });
     },
     // 修改密码
-    changePassword(){
+    changePassword() {
       this.parentData.showDialog = true
     }
   }
@@ -191,6 +203,7 @@ export default {
   background-size: cover;
   background-position-x: right;
 }
+
 .login-cnt {
   display: flex;
   justify-content: space-between;
@@ -201,6 +214,7 @@ export default {
   .cnt1 {
     width: 600px;
   }
+
   .cnt2 {
     width: 500px;
     padding: 30px 80px;
@@ -217,6 +231,7 @@ export default {
       text-align: left;
       margin-bottom: 20px;
     }
+
     .title_logo {
       margin-top: 20px;
       font-size: 30px;
@@ -229,11 +244,13 @@ export default {
     }
   }
 }
+
 .title {
   color: #303030;
   font-weight: 600;
   text-align: center;
 }
+
 .tool-cnt {
   display: flex;
   justify-content: space-between;
@@ -244,6 +261,7 @@ export default {
   margin-bottom: 0;
   text-align: center;
 }
+
 .bannerCnt {
   position: relative;
   display: flex;
@@ -251,6 +269,7 @@ export default {
   width: 100%;
   height: 100%;
   padding: 0 100px;
+
   .bannerCnt-bg {
     position: absolute;
     top: 0;
@@ -264,10 +283,12 @@ export default {
   .bannerCnt-body {
     max-width: 600px;
   }
+
   .bannerCnt-body_title {
     font-size: 34px;
     color: #ffffff;
   }
+
   .bannerCnt-body_line {
     width: 40px;
     height: 6px;
@@ -275,6 +296,7 @@ export default {
     margin-bottom: 20px;
     margin-top: 5px;
   }
+
   .bannerCnt-body_text {
     margin-top: 10px;
     margin-bottom: 40px;

@@ -54,12 +54,12 @@ AXIOS_BASE.interceptors.request.use(
 )
 
 // 响应拦截器
-AXIOS_BASE.interceptors.response.use(
+/*AXIOS_BASE.interceptors.response.use(
   // 对响应数据处理
   (response) => {
     const res = response.data
     return res
-    /*if ([200, '200'].includes(res.code)) {
+    /!*if ([200, '200'].includes(res.code)) {
       // 接口状态为0，成功
       return res
     } else {
@@ -72,7 +72,7 @@ AXIOS_BASE.interceptors.response.use(
       })
       // router.push('/login')
     }
-    return Promise.reject(new Error(res.message || 'Error'))*/
+    return Promise.reject(new Error(res.message || 'Error'))*!/
   },
   (error) => {
     // 对响应错误处理
@@ -81,7 +81,7 @@ AXIOS_BASE.interceptors.response.use(
     }
 
     if (error && error.response) {
-      /* eslint-disable */
+      eslint-disable
       switch (error.response.status) {
         case 400:
           error.message = '请求错误';
@@ -122,7 +122,7 @@ AXIOS_BASE.interceptors.response.use(
         default:
           error.message = '请求错误';
       }
-      /* eslint-enable */
+      eslint-enable
     }
 
     // if (process.env.NODE_ENV === 'development') {
@@ -145,7 +145,7 @@ AXIOS_BASE.interceptors.response.use(
       // });
     return Promise.reject(error)
   }
-)
+)*/
 
 /**
  * 未登录提示
