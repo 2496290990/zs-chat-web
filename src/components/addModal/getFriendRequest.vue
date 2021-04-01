@@ -13,7 +13,7 @@
 <script>
 import { mapActions, mapGetters } from "vuex";
 import Vue from "vue";
-
+import {operationApply} from '../../api/user'
 export default {
   data() {
     return {
@@ -37,18 +37,44 @@ export default {
         .friendModule.friendRequest.isShow;
     },
     acceptSubmit() {
-      const id = this.$store.state.friendModule.friendRequest.from;
-      this.acceptSubscribe(id);
-      this.changeModal();
+      const friendId = this.$store.state.friendModule.friendRequest.from
+      operationApply({proposer:friendId,state:1}).then(res => {
+        if(res.code === 200){
+          this.acceptSubscribe(friendId);
+          this.changeModal();
+          this.$message({
+            type:'success',
+            message:res.message
+          })
+        }else{
+          this.$message({
+            type:'error',
+            message:res.message
+          })
+        }
+
+      })
+
     },
     refusedClick() {
       const options = {
         id: this.$store.state.friendModule.friendRequest.from,
         params: this.$route.query.username
       };
-      this.declineSubscribe(options);
-      this.changeModal();
+      operationApply({proposer:options.id,state:0}).then(res => {
+        if (res.code === 200) {
+          this.declineSubscribe(options);
+          this.changeModal();
+          this.$message({
+            type: 'success',
+            message: res.message
+          })
+        } else {
+          this.$message.error(res.message)
+        }
+      })
     }
+
   }
 };
 </script>

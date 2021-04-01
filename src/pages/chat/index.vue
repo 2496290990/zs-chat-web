@@ -37,9 +37,9 @@
               <a-icon type="plus-circle" />
             </span>
             <a-menu slot="overlay">
-              <a-menu-item @click="ulClick('1')">
+<!--              <a-menu-item @click="ulClick('1')">
                 <a href="javascript:;">添加好友</a>
-              </a-menu-item>
+              </a-menu-item>-->
               <a-menu-item @click="sendApply">
                 <a href="javascript:;">添加好友</a>
               </a-menu-item>
@@ -105,7 +105,7 @@
           @show_add_member_modal="show_add_member_modal"
         />
 
-        <AddFriend ref="addFriendMethods" v-if="parentData.dialogVisible" :parentData="parentData" />
+        <AddFriend ref="addFriendMethods" v-if="addFriend.dialogVisible" :addFriend="addFriend" />
         <GetFriendRequest />
         <FirendBlack ref="firendModel" />
         <AddGroupUser ref="addGroupModel" />
@@ -125,57 +125,6 @@
       </a-layout-content>
     </a-layout>
 
-
-<!--    &lt;!&ndash;elementUI&ndash;&gt;
-    <el-dialog
-      title="个人信息"
-      :visible.sync="dialogVisible"
-      width="50%"
-      :before-close="handleClose">
-      <el-form  :model="form" label-width="80px">
-        <el-form-item label="头像:">
-          <el-upload
-            class="avatar-uploader"
-            action="http://localhost:8099/common/uploadImg"
-            :show-file-list="false"
-            :on-success="handleAvatarSuccess"
-            :before-upload="beforeAvatarUpload">
-            <img v-if="form.imageUrl" :src="form.imageUrl" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-          </el-upload>
-        </el-form-item>
-        <el-form-item label="账号:">
-          <el-input v-model="form.account" :disabled="readOnly"></el-input>
-        </el-form-item>
-        <el-form-item label="用户名:">
-          <el-input v-model="form.name" :disabled="readOnly"></el-input>
-        </el-form-item>
-        <el-form-item label="邮箱:">
-          <el-input v-model="form.email" :disabled="readOnly"></el-input>
-        </el-form-item>
-        <el-form-item label="手机号:">
-          <el-input v-model="form.phone" :disabled="readOnly"></el-input>
-        </el-form-item>
-        <el-form-item label="性别:" :disabled="readOnly">
-            <el-radio-group >
-              <el-radio v-model="form.sex" label="0">女</el-radio>
-              <el-radio v-model="form.sex" label="1">男</el-radio>
-            </el-radio-group>
-        </el-form-item>
-        <el-form-item label="新密码:" v-show="!readOnly">
-          <el-input v-model="form.newPwd" ></el-input>
-        </el-form-item>
-        <el-form-item label="确认密码:" v-show="!readOnly">
-          <el-input v-model="form.rePwd" ></el-input>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-      <el-button @click="dialogVisible = false">取 消</el-button>
-      <el-button type="primary" v-if="edit" @click="editUser">编 辑</el-button>
-      <el-button type="primary" v-else @click="saveUser">保存</el-button>
-
-      </span>
-    </el-dialog>-->
     <user-detail v-if="parentData.dialogVisible" :parentData="parentData"></user-detail>
   </a-layout>
 </template>
@@ -257,6 +206,10 @@ export default {
       readOnly:true,
       edit:true,
       parentData:{
+        dialogVisible:false,
+        title:'',
+      },
+      addFriend:{
         dialogVisible:false,
         title:'',
       }
@@ -417,18 +370,9 @@ export default {
     addModalChange() {
       this.$data.showAddOptions = !this.$data.showAddOptions;
     },
-    //添加好友
     sendApply(){
-      this.parentData.dialogVisible = true
-      this.parentData.title = '添加好友'
-    },
-    //加入群组
-    joinGroup(){
-      this.$refs.addGroupModel.changeGroupModel();
-    },
-    //创建群组
-    createGroup(){
-      this.$refs.createGroupModel.changeCreateModel();
+      this.addFriend.dialogVisible = true
+      this.addFriend.title = '添加好友'
     },
     ulClick(i) {
       // this.addModalChange();

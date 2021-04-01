@@ -1,7 +1,7 @@
 <template>
   <el-dialog
-    :title="parentData.title"
-    :visible.sync="parentData.dialogVisible"
+    :title="addFriend.title"
+    :visible.sync="addFriend.dialogVisible"
     width="50%"
     :before-close="handleClose">
     <el-form :model="form" :inline="true">
@@ -41,7 +41,7 @@
       </el-table-column>
       <el-table-column
         prop="intro"
-        label="简介">
+        label="操作">
         <template slot-scope="scope">
           <el-button type="primary" @click="submitValue(scope.row.account)">添 加</el-button>
         </template>
@@ -49,7 +49,7 @@
 
     </el-table>
     <span slot="footer" class="dialog-footer">
-      <el-button @click="parentData.dialogVisible = false">取 消</el-button>
+      <el-button @click="addFriend.dialogVisible = false">取 消</el-button>
     </span>
   </el-dialog>
 <!--  <a-modal
@@ -105,10 +105,10 @@
 <script>
 import {mapActions, mapGetters} from "vuex";
 import Vue from "vue";
-import {queryUser} from '@/api/user'
+import {queryUser,sendFriendApply} from '@/api/user'
 
 export default {
-  props: ['parentData'],
+  props: ['addFriend'],
   data() {
     return {
       form: {
@@ -139,19 +139,28 @@ export default {
         this.tableData = res.data;
       })
     },
-   /* changeModal() {
+   changeModal() {
       this.$data.showAddFriendModal = !this.$data.showAddFriendModal;
-    },*/
+    },
     submitValue(account) {
-      console.log(account)
-      /*const option = {
-        id: this.form.name,
-        params: this.$route.query.username
-      };
-      this.changeModal();
-      this.addfirend(option);
-      this.$message.success("已发送请求");
-      this.$data.form.name = ''*/
+      sendFriendApply({friendId:account})
+      .then(res => {
+        console.log(res.code === 200)
+        if(res.code === 200){
+          const option = {
+            id: account,
+            params: this.$route.query.username
+          };
+          this.changeModal();
+          this.addfirend(option);
+          this.$message.success("已发送请求");
+          this.$data.form.name = ''
+          this.addFriend.dialogVisible = false
+        }else{
+          this.$message.error(res.message)
+        }
+      })
+
     }
   }
 };

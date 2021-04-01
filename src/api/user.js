@@ -66,3 +66,20 @@ export function queryUser(data){
   })
 }
 
+/** 发送好友申请 */
+export function sendFriendApply(data){
+  return request({
+    url: '/friendApply/apply',
+    method:'post',
+    data
+  })
+}
+
+/** 对好友申请操作 0拒绝 1同意 */
+export function operationApply(data){
+  return request({
+    url :'/friendApply/operation',
+    method:'post',
+    data
+  })
+}
