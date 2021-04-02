@@ -22,7 +22,7 @@
         <el-input v-model="form.account" disabled></el-input>
       </el-form-item>
       <el-form-item label="昵   称:">
-        <el-input v-model="form.name" :disabled="readOnly"></el-input>
+        <el-input v-model="form.username" :disabled="readOnly"></el-input>
       </el-form-item>
       <el-form-item label="邮   箱:">
         <el-input v-model="form.email" :disabled="readOnly"></el-input>
@@ -73,7 +73,7 @@ export default {
         email:'',
         phone:'',
         sex: 0,
-        name : '测试',
+        username : '',
         newPwd:'',
         rePwd:'',
         imageUrl: `https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png`,
@@ -140,7 +140,7 @@ export default {
         this.form.account = res.data.account
         this.form.email = res.data.email
         this.form.imageUrl = res.data.accountUrl
-        this.form.name = res.data.username
+        this.form.username = res.data.username
         this.form.phone = res.data.phone
         this.form.sex  = res.data.sex
         this.form.birth = res.data.birth

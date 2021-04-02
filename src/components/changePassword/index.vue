@@ -37,7 +37,7 @@
 
 <script>
 import {sendEmail} from "../../api/common";
-import { verify } from "@/api/user";
+import { verify ,changePwd} from "@/api/user";
 import { checkPassword } from "@/api/validate"
 
 export default {
@@ -66,7 +66,7 @@ export default {
     };
 
     return {
-      active: 1,
+      active: 0,
       form: {
         email: '',
         value: '',
@@ -135,7 +135,14 @@ export default {
       console.log(this.form.password)
       this.$refs['form'].validate((valid) => {
         if (valid) {
-          console.log('校验通过')
+          changePwd({email:this.form.email,password:this.form.password}).then(res => {
+            this.$message({
+              type: res.code === 200 ? "success" : "error",
+              message: res.message
+            })
+            this.parentData.dialogVisible = false
+          })
+
         } else {
           return false;
         }

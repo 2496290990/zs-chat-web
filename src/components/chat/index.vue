@@ -1,6 +1,6 @@
 <template>
   <div class="userlist">
-    <a-menu style="width: 100%; border-right: 0;" mode="vertical" :selectedKeys="selectedKeys">
+    <a-menu v-if="type != 'contact'" style="width: 100%; border-right: 0;" mode="vertical" :selectedKeys="selectedKeys">
       <a-menu-item
         style="height: 80px; position: relative; textAlign: left; borderBottom: 1px solid #eee; margin: 0"
         v-for="(item) in userList[type]"
@@ -15,6 +15,25 @@
         <div>{{getLastMsg(item).lastMsg}}</div>
       </a-menu-item>
     </a-menu>
+    <div v-else>
+      <el-tree
+          :data="friendList"
+          show-checkbox
+          node-key="id"
+          default-expand-all
+          :expand-on-click-node="false"
+          :props="defaultProps"
+          @node-click="handleNodeClick"
+      >
+        <span class="custom-tree-node show-hide" slot-scope="{ node, data }">
+          <span>{{ node.label }}</span>
+          <span style="display:none">
+            <el-button type="text" size="mini" @click="openClick()">分组管理</el-button>
+          </span>
+        </span>
+      </el-tree>
+    </div>
+    <group-management-index v-if="parentData.showDialog" :parent-data="parentData"></group-management-index>
   </div>
 </template>
 
@@ -29,9 +48,17 @@ import AddAVMemberModal from "../emediaModal/addAVMemberModal";
 import MultiAVModal from "../emediaModal/multiAVModal";
 import GetGroupInfo from "../group/groupInfo.vue";
 import {getFriendList} from  '@/api/user';
+import GroupManagementIndex from "../groupManagement/groupManagementIndex";
 export default {
+  components: {GroupManagementIndex},
   data() {
     return {
+      show: false,
+      defaultProps: {
+        children: 'myFriendList',
+        label: 'nickname'
+      },
+      friendList:[],
       activedKey: {
         contact: "",
         group: "",
@@ -48,6 +75,10 @@ export default {
           name: "删除好友",
           id: "2",
           icon: "delete"
+        },{
+          name:"编辑好友",
+          id:"3",
+          icon:"setting"
         }
       ],
       message: "",
@@ -59,7 +90,10 @@ export default {
         read: "已读"
       },
       isCollapse: true,
-      unRead: ""
+      unRead: "",
+      parentData:{
+        showDialog: false
+      }
       // selectedKeys: [ this.getKey(this.activedKey[this.type]) ]
     };
   },
@@ -120,6 +154,17 @@ export default {
     "select"
   ],
   methods: {
+    openClick() {
+      this.parentData.showDialog = true
+      this.parentData.data = this.data
+    },
+    // 新加的
+    handleNodeClick(data) {
+      console.log(data,'data');
+      this.$data.selectedKeys = [data.id];
+      this.select(data);
+      this.$data.activedKey[this.type] = data;
+    },
     ...mapActions([
       "onGetContactUserList",
       "onGetGroupUserList",
@@ -139,7 +184,10 @@ export default {
     ]),
     getMyFriends(){
       getFriendList().then(res => {
-        console.log(res)
+        if(res.code === 200){
+          this.friendList  = res.data
+          console.log(this.friendList)
+        }
       })
     },
     handleOpen(key, keyPath) {
@@ -187,6 +235,7 @@ export default {
       return unReadNum;
     },
     select2(key, index) {
+      console.log(key,index,'key')
       this.$data.selectedKeys = [index];
       this.select(key);
       this.$data.activedKey[this.type] = key;
@@ -488,5 +537,16 @@ export default {
   .el-menu-vertical-demo {
     width: 100%;
   }
+}
+.custom-tree-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  padding-right: 8px;
+}
+.show-hide:hover :nth-child(2) {
+  display: inline-block !important;
 }
 </style>

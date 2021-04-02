@@ -83,3 +83,11 @@ export function operationApply(data){
     data
   })
 }
+
+export function changePwd(data){
+  return request({
+    url:'/user/updatePwd',
+    method:'put',
+    data
+  })
+}

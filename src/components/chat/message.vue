@@ -4,7 +4,7 @@
       <!-- <div>{{type}}</div> -->
       <div>
         <a-icon type="left" class="user-goback" v-show="broken" @click="showUserList" />
-        <span>{{`${activedKey[type].name } &nbsp;&nbsp; ${activedKey[type].groupid || ''}`}}</span>
+        <span>{{`${activedKey[type].friendAccount } &nbsp;&nbsp; ${activedKey[type].groupid || ''}`}}</span>
         <a-icon v-if="type=='group'" type="ellipsis" class="user-ellipsis" @click="changeMenus" />
         <a-dropdown v-else-if="type=='contact'">
           <a class="ant-dropdown-link user-ellipsis" href="#" @click="changeMenus">
@@ -248,7 +248,8 @@ export default {
       let key = "";
       switch (type) {
         case "contact":
-          key = item.name;
+          console.log(item.friendAccount)
+          key = item.friendAccount;
           break;
         case "group":
           key = item.groupid;
@@ -305,7 +306,8 @@ export default {
         }, 100);
 
         if (!this.msgList) {
-          this.getHistoryMessage({ name: key.name, isGroup: false });
+          console.log(key.friendAccount +"account")
+          this.getHistoryMessage({ name: key.friendAccount, isGroup: false });
         }
       } else if (this.type === "chatroom") {
         const me = this;
@@ -339,7 +341,7 @@ export default {
       let name = "";
       let isGroup = false;
       if (this.type === "contact") {
-        name = this.$data.activedKey[this.type].name;
+        name = this.$data.activedKey[this.type].friendAccount;
       } else if (this.type === "group") {
         name = this.$data.activedKey[this.type].groupid;
         isGroup = true;
@@ -454,7 +456,7 @@ export default {
       const val = this.$data.activedKey[this.type].name
       this.$emit('EmediaModalFun', [val], 0);
     },
-    
+
     readablizeBytes(value) {
       let s = ["Bytes", "KB", "MB", "GB", "TB", "PB"];
       let e = Math.floor(Math.log(value) / Math.log(1024));

@@ -76,6 +76,10 @@
           <a-icon type="usergroup-add" class="navMenu-icon" />
           <span class="navMenu-text">聊天室</span>
         </a-menu-item>
+        <a-menu-item key="circle">
+          <a-icon type="cloud" class="navMenu-icon" />
+          <span class="navMenu-text">动态</span>
+        </a-menu-item>
       </a-menu>
     </a-layout-header>
     <a-layout>
@@ -361,6 +365,9 @@ export default {
           break;
         case "chatroom":
           this.$refs.messageBox.onGetChatroomUserList();
+          break;
+        case "circle" :
+          this.$router.push('circleFriends');
           break;
         default:
           break;

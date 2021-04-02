@@ -1,5 +1,6 @@
 <template>
   <div class="bodAll">
+    <el-button type="primary"  @click="$router.push('chatroom')">回退聊天</el-button>
     <!-- 朋友圈 -->
     <div class="circleFriends">
       <h1 style="color:wheat;padding-top: 20px;text-align: center;">
@@ -101,6 +102,7 @@
 
 <script>
 export default {
+
   data() {
     return {
       textarea: "",
@@ -260,7 +262,7 @@ body {
   }
   .picSTow{
     background: white;
-     
+
     .picShowTow{
       padding-bottom: 30px;
       width: 100%;
@@ -285,7 +287,7 @@ body {
     }
     .orderList {
       margin: 50px auto;
-      width: 1200px; 
+      width: 1200px;
       background: rgb(255, 255, 255);
       margin-bottom: 20px;
       box-shadow: 0 0 10px #ccc;
