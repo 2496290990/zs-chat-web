@@ -50,6 +50,22 @@ export function editUser(data) {
   });
 }
 
+/** 查询我的好友 */
+export function getFriend(data) {
+  return request({
+    url:'/myFriend/queryByAccount',
+    method:'get',
+    data
+  })
+}
+/** 编辑好友信息 */
+export function editFriend(data) {
+  return request({
+    url:'/myFriend/editFriend',
+    method:'put',
+    data
+  })
+}
 /**获取好友列表*/
 export function getFriendList(){
   return request({

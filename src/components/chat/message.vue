@@ -17,6 +17,9 @@
             <a-menu-item @click="menuClick('2')">
               <a href="javascript:;">删除好友</a>
             </a-menu-item>
+            <a-menu-item @click="editFriend(activedKey[type].friendAccount)">
+              <a href="javascript:;">编辑好友信息</a>
+            </a-menu-item>
           </a-menu>
         </a-dropdown>
       </div>
@@ -146,6 +149,7 @@
       </div>
     </div>
     <GetGroupInfo ref="groupInfoModel" @closeGroupMessage="closeGroupMessage" />
+    <friend-detail :friend-data="friendData" v-if="friendData.dialogVisible"></friend-detail>
 
     <!-- fix 移动到全局 -->
     <!-- <AddAVMemberModal ref="addAvMembertModal" :to="activedKey[type]" @start="start_multi"/> -->
@@ -168,6 +172,7 @@ import _ from "lodash";
 // import MultiAVModal from "../emediaModal/multiAVModal";
 // import EmediaModal from "../emediaModal/index";
 import GetGroupInfo from "../group/groupInfo.vue";
+import friendDetail from "../user/friendDetail";
 
 export default {
   data() {
@@ -185,7 +190,12 @@ export default {
         sent: "已发送",
         read: "已读"
       },
-      nowIsVideo: false
+      nowIsVideo: false,
+      friendData:{
+        dialogVisible:false,
+        title:'',
+        account:''
+      }
     };
   },
 
@@ -363,6 +373,10 @@ export default {
         this.getGroupInfo();
       }
     },
+    editFriend(account) {
+      this.friendData.dialogVisible = true
+      this.friendData.account = account
+    },
     menuClick(i) {
       this.changeMenus();
       switch (i) {
@@ -522,11 +536,12 @@ export default {
     // }
   },
   components: {
-      ChatEmoji,
+    ChatEmoji,
     UpLoadImage,
     UpLoadFile,
     GetGroupInfo,
     RecordAudio,
+    friendDetail
     // AddAVMemberModal,
     // MultiAVModal,
     // EmediaModal,
