@@ -104,9 +104,9 @@ export default {
           type: res.code === 200 ? "success" : "error",
           message: res.data
         })
+        window.location.reload()
         this.friendData.dialogVisible = false
-        this.$router.push('/chatroom')
-
+        // this.$router.push('/chatroom')
       })
     },
     changeBtn(){

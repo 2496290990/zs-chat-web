@@ -1,5 +1,58 @@
 <template>
-  <a-modal title="申请入群啊" v-model="showGroupModel" :footer="null">
+  <el-dialog
+    :title="joinGroup.title"
+    :visible.sync="joinGroup.dialogVisible"
+    width="50%"
+    :before-close="handleClose">
+    <el-form :model="form" :inline="true">
+      <el-form-item label="搜索:">
+        <el-input v-model="form.name" auto-complete="off"></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-button @click="queryGroup" type="primary">查询</el-button>
+      </el-form-item>
+    </el-form>
+    <el-table
+      :data="tableData"
+      height="250"
+      border
+      style="width: 100%">
+      <el-table-column
+        prop="accountUrl"
+        label="头像"
+        width="180">
+        <template slot-scope="scope">
+          <div class="block"><el-avatar :size="50" :src="scope.row.accountUrl"></el-avatar></div>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="account"
+        label="账号"
+        width="180">
+      </el-table-column>
+      <el-table-column
+        prop="username"
+        label="昵称"
+        width="180">
+      </el-table-column>
+      <el-table-column
+        prop="intro"
+        label="简介">
+      </el-table-column>
+      <el-table-column
+        prop="intro"
+        label="操作">
+        <template slot-scope="scope">
+          <el-button type="primary" @click="submitValue(scope.row.account)">添 加</el-button>
+        </template>
+      </el-table-column>
+
+    </el-table>
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="joinGroup.dialogVisible = false">取 消</el-button>
+    </span>
+  </el-dialog>
+<!--  <a-modal title="申请入群啊" v-model="showGroupModel" :footer="null">
     <div>
       <a-input-search
         placeholder="请输入群组ID"
@@ -44,19 +97,22 @@
         </div>
       </div>
     </div>
-  </a-modal>
+  </a-modal>-->
 </template>
 <script>
 import "./group.less";
 import { mapActions, mapGetters } from "vuex";
 import Vue from "vue";
 export default {
+  props: ['joinGroup'],
   data() {
     return {
       select_groupid: "",
       showGroupModel: false,
       showGroupInfoModel: false,
-      showGroupListModel: true
+      showGroupListModel: true,
+      form:{},
+      tableData:[]
     };
   },
   computed: {
@@ -74,6 +130,18 @@ export default {
       "onGetGroupinfo",
       "onJoinGroup"
     ]),
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          this.edit = true
+          this.readOnly = true
+          done();
+        })
+        .catch(_ => {});
+    },
+    queryGroup(){
+      alert('查询群组')
+    },
     changeGroupModel() {
       this.$data.showGroupModel = !this.$data.showGroupModel;
       if (!this.$data.showGroupListModel) {
@@ -86,9 +154,7 @@ export default {
       this.$data.showGroupListModel = !this.$data.showGroupListModel;
       this.$data.showGroupInfoModel = !this.$data.showGroupInfoModel;
     },
-    // chanegGroupInfoModel(){
-    //   this.$data.showGroupInfoModel = !this.$data.showGroupInfoModel
-    // },
+
     getPublicGroup() {
       this.onGetPublicGroup();
     },

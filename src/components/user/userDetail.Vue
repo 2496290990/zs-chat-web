@@ -47,19 +47,12 @@
           :disabled="readOnly">
         </el-date-picker>
       </el-form-item>
-<!--      <el-form-item label="新密码:" v-show="!readOnly">
-        <el-input v-model="form.newPwd" ></el-input>
-      </el-form-item>
-      <el-form-item label="确认密码:" v-show="!readOnly">
-        <el-input v-model="form.rePwd" ></el-input>
-      </el-form-item>-->
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="parentData.dialogVisible = false">取 消</el-button>
       <el-button type="primary" v-if="edit" @click="changeBtn">编 辑</el-button>
       <el-button type="primary" v-else @click="saveUser">保存</el-button>
-
-      </span>
+    </span>
   </el-dialog>
 </template>
 <script>

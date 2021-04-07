@@ -21,9 +21,6 @@
               <a-menu-item  @click="showMe">
                 <a href="javascript:;">个人信息</a>
               </a-menu-item>
-<!--              <a-menu-item @click="showMe">
-                <a href="javascript:;">个人信息</a>
-              </a-menu-item>-->
               <a-menu-item @click="toLogout">
                 <a href="javascript:;">退出</a>
               </a-menu-item>
@@ -37,17 +34,20 @@
               <a-icon type="plus-circle" />
             </span>
             <a-menu slot="overlay">
-<!--              <a-menu-item @click="ulClick('1')">
-                <a href="javascript:;">添加好友</a>
-              </a-menu-item>-->
               <a-menu-item @click="sendApply">
                 <a href="javascript:;">添加好友</a>
               </a-menu-item>
-              <a-menu-item @click="ulClick('2')">
+              <a-menu-item @click="joinApply">
                 <a href="javascript:;">申请入群</a>
               </a-menu-item>
-              <a-menu-item @click="ulClick('3')">
+              <a-menu-item @click="ulClick('2')">
+                <a href="javascript:;">申请入群原生</a>
+              </a-menu-item>
+              <a-menu-item @click="createNewGroup">
                 <a href="javascript:;">创建群组</a>
+              </a-menu-item>
+              <a-menu-item @click="ulClick('3')">
+                <a href="javascript:;">创建群组原生</a>
               </a-menu-item>
             </a-menu>
           </a-dropdown>
@@ -129,7 +129,9 @@
       </a-layout-content>
     </a-layout>
 
-    <user-detail v-if="parentData.dialogVisible" :parentData="parentData"></user-detail>
+    <user-detail v-if="parentData.dialogVisible" :parentData="parentData" />
+    <join-group-apply v-if="joinGroup.dialogVisible" :joinGroup="joinGroup" />
+    <create-new-group v-if="createGroup.dialogVisible" :createGroup="createGroup" />
   </a-layout>
 </template>
 
@@ -154,6 +156,8 @@ import Call from "../../components/agoraCallModal/channel";
 import AlertModal from "../../components/agoraCallModal/alertModal"
 import AddAVMemberModal from "../../components/emediaModal/addAVMemberModal";
 import UserDetail from '../../components/user/userDetail'
+import JoinGroupApply from '../../components/group/joinGroupApply'
+import CreateNewGroup from '../../components/group/createNewGroup'
 import {saveUser,getUser} from '@/api/user'
 import "./index.less";
 import { mapState, mapActions } from "vuex";
@@ -212,6 +216,14 @@ export default {
       parentData:{
         dialogVisible:false,
         title:'',
+      },
+      joinGroup:{
+       dialogVisible:false,
+       title:'申请加入群组'
+      },
+      createGroup:{
+        dialogVisible:false,
+        title:'申请加入群组'
       },
       addFriend:{
         dialogVisible:false,
@@ -376,6 +388,12 @@ export default {
     },
     addModalChange() {
       this.$data.showAddOptions = !this.$data.showAddOptions;
+    },
+    joinApply(){
+      this.joinGroup.dialogVisible = true
+    },
+    createNewGroup(){
+      this.createGroup.dialogVisible = true
     },
     sendApply(){
       this.addFriend.dialogVisible = true
@@ -553,7 +571,9 @@ export default {
     Call,
     AddAVMemberModal,
     AlertModal,
-    UserDetail
+    UserDetail,
+    JoinGroupApply,
+    CreateNewGroup
   }
 };
 </script>
