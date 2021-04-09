@@ -42,14 +42,13 @@
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="createGroup.dialogVisible = false">取 消</el-button>
-      <el-button type="primary"  @click="saveGroup">保存</el-button>
+      <el-button type="primary"  @click="initData">保存</el-button>
     </span>
   </el-dialog>
 </template>
 <script>
 import Vue from "vue";
 import {createGroup} from '../../api/chatGroup'
-
 export default {
   props:['createGroup'],
   data(){
@@ -62,7 +61,7 @@ export default {
         groupType:0,
         applyState:1,
         groupIntro:'',
-        hxGroupId: '123',
+        hxGroupId: '',
       }
     }
   },
@@ -92,28 +91,18 @@ export default {
         })
         .catch(_ => {});
     },
-    saveGroup(){
+    initData(){
       //环信创建群组
-      console.log(this.form.hxGroupId)
-      let groupId = this.onCreateGroup('',{
+      this.onCreateGroup('',{
           groupname: this.form.groupName,
           desc: this.form.groupIntro,
           //members: this.$data.form.membersList,
           approval: this.form.groupType != 1,
           pub: this.form.applyState == 1
         })
-      console.log('gId' + groupId)
-      if(!this.hxRes){
-        createGroup(this.form).then(res => {
-          console.log(res.data)
-        })
-      }else{
-        this.$message.error('创建群组失败，请联系管理员')
-      }
+      console.log('先执行3')
     },
     onCreateGroup: function (context, payload) {
-      console.log(payload)
-      let groupId = ''
       let _this = this
       let options = {
         data: {
@@ -124,22 +113,29 @@ export default {
           approval: payload.approval,                  // approval为true，加群需审批，为false时加群无需审批
         },
         success(resp){
-          groupId = resp.data.groupid
-          console.log(_this.hxGroupId)
-          //Vue.$store.dispatch('onGetGroupUserList')
+          _this.form.hxGroupId = resp.data.groupid
+          _this.hxRes = true
+          _this.saveGroup()
+          console.log('先执行2')
         },
         error: function () { }
       };
       WebIM.conn.createGroupNew(options);
-      return groupId;
+      console.log('先执行1')
     },
-    changeHxGroupId(groupId) {
-      console.log(this.form.hxGroupId + ":1")
-      console.log(this.hxGroupId + ":1")
-      this.form.hxGroupId = groupId
-      this.hxGroupId = groupId
-      console.log(this.form.hxGroupId + ":2")
-      console.log(this.hxGroupId + ":2")
+    saveGroup(){
+      if(this.hxRes){
+        createGroup(this.form).then(res => {
+          this.$message({
+            type: res.code === 200 ? 'success' :'error',
+            message: res.data
+          })
+          window.location.reload()
+          this.createGroup.dialogVisible = false
+        })
+      }else{
+        this.$message.error('创建群组失败，请联系管理员')
+      }
     }
   }
 }

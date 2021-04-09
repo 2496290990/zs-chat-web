@@ -4,7 +4,8 @@
       <!-- <div>{{type}}</div> -->
       <div>
         <a-icon type="left" class="user-goback" v-show="broken" @click="showUserList" />
-        <span>{{`${activedKey[type].friendAccount } &nbsp;&nbsp; ${activedKey[type].groupid || ''}`}}</span>
+        <span>showType : {{showType}} 123 </span>
+        <span>{{  `${activedKey[type].friendAccount } &nbsp;&nbsp; ${activedKey[type].groupid || ''}`}}</span>
         <a-icon v-if="type=='group'" type="ellipsis" class="user-ellipsis" @click="changeMenus" />
         <a-dropdown v-else-if="type=='contact'">
           <a class="ant-dropdown-link user-ellipsis" href="#" @click="changeMenus">
@@ -195,7 +196,8 @@ export default {
         dialogVisible:false,
         title:'',
         account:''
-      }
+      },
+      showType:'contact'
     };
   },
 
@@ -256,9 +258,10 @@ export default {
     ]),
     getKey(item, type) {
       let key = "";
+      this.showType = type
       switch (type) {
+
         case "contact":
-          console.log(item.friendAccount)
           key = item.friendAccount;
           break;
         case "group":

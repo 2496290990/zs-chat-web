@@ -1,321 +1,232 @@
 <template>
   <div class="bodAll">
-    <el-button type="primary"  @click="$router.push('chatroom')">回退聊天</el-button>
-    <!-- 朋友圈 -->
-    <div class="circleFriends">
-      <h1 style="color:wheat;padding-top: 20px;text-align: center;">
-        校友邦朋友圈
-      </h1>
-      <div class="user">
-        <!-- <img class="imgTi" style="" src="../../assets/img/0.jpg" alt="" /> -->
-        <div class="titles">
-          <p class="titel">用户名：<span>蔡徐坤</span></p>
-          <p class="titel">
-            <span>用户名</span> 朋友圈间距华东师大数据还是时间段开始
-          </p>
-        </div>
-      </div>
-      <!-- content -->
-      <div
-        class="fbBtn"
-        style="margin-top: 250px;
-
-      display: flex;margin-bottom:20px;   justify-content: flex-end;"
-      >
-        <el-button type="primary">发表</el-button>
-      </div>
-      <div class="fbu">
-        <el-input
-          type="textarea"
-          :rows="3"
-          placeholder="请输入内容"
-          v-model="textarea"
-          style="width: 98%;"
-          resize="none"
-        >
-        </el-input>
-        <el-upload
-          class="upload-demo"
-          drag
-          action="https://jsonplaceholder.typicode.com/posts/"
-          multiple
-          :show-file-list="false"
-        >
-          <i class="el-icon-camera-solid"></i>
-        </el-upload>
-      </div>
-      <div class="picS" v-if="this.showPic">
-        <p>
-          <span> <i class="el-icon-picture"></i> 图片 (1/9)</span>
-          <span
-            style="font-size: 18px;  color: #666; cursor: pointer;"
-            @click="closeClick"
-            >x</span
-          >
-        </p>
-        <div class="picShow">
-          <img
-            :src="pic"
-            alt=""
-            style="width:300px;height:300px"
-            v-for="(pic, index) in fileList"
-            :key="index"
-          />
-        </div>
-      </div>
-      <div class="content">
-        <div class="orderList" v-for="(i, index) in 2" :key="index">
-          <div class="top">
-            <img
-              style="width:30px;height:30px"
-              src="../../assets/logo.png"
-              alt=""
-            />
-
-            <span style="margin-left: 30px;">
-              蔡徐坤嘎嘎嘎嘎嘎嘎嘎过过过过过过过过过过过过过过过
-            </span>
-            <span style="margin-left: 30px;"> 2021:2：2</span>
+    <div class="divBox">
+        <div class="friendHeader">
+          <div style="width: 150px;height: 150px;float: left">
+            <img :src="portraitSrc" style="width: 150px;height: 150px">
           </div>
-
-          <div class="bottom">
-            <!-- <img src="../../assets/img/1.jpg" alt="" /> -->
-
-            她的头像风格太独特了{uin:2052943449,nick:@传送门,who:19}
+          <div style="float: left;margin-left: 2%;margin-top: 4%">
+            <h3>{{currentUser.username}}</h3>
+            <span>{{currentUser.intro || '这个人很懒什么都没有留下'}}</span>
           </div>
-          <div class="picSTow"  >
-            <div class="picShowTow">
-              <img
-                :src="pic"
-                alt=""
-                style="width:250px;height:250px"
-                v-for="(pic, index) in fileList"
-                :key="index"
-              />
+        </div>
+       <div class="contentBox">
+          <div class="contentLeft">
+            <div class="leftHeader">
+              <el-input type="text" placeholder="说点什么吧~" v-model="textarea">
+                <template slot="append">
+                  <el-upload
+                      class="upload-demo"
+                      action="http://localhost:8099/common/uploadImg"
+                      multiple
+                      list-type="picture"
+                      :show-file-list="false"
+                      :file-list="fileList"
+                      :on-success="handleAvatarSuccess"
+                      :before-upload="beforeAvatarUpload"
+                      :limit="9">
+                    <i class="el-icon-picture"></i>
+                  </el-upload>
+                </template>
+              </el-input>
+              <div style="width: 100%;height: 60px;margin-top: 2px;text-align: right;line-height: 60px">
+                <div v-for="(item,index) in imgList" :key="index" style="float: left;margin-right: 10px">
+                  <img :src="item" style="width: 60px;height: 60px">
+                </div>
+                <el-button type="primary" size="mini" style="margin-right: 10px" @click="submitClick()">提交</el-button>
+              </div>
+            </div>
+            <div class="leftMain" v-for="(item,index) in dynamicList" :key="'parent'+index">
+                <div style="height: 50px;height: 50px;border-radius: 50%;margin: 10px">
+                  <img :src="item.accountUrl" style="width: 50px;height: 50px;border-radius: 50%;float: left">
+                  <h4>{{item.creator}}</h4>
+                  <span>{{item.createTime}}</span>
+                </div>
+              <div style="margin: 10px">{{item.text}}</div>
+              <div>
+                <div v-for="(srcitem,srcindex) in item.circleOssList" :key="'src'+ srcindex" style="display: inline;margin: 0 10px">
+                  <img :src="srcitem.url" style="width:100px;height: 100px">
+                </div>
+              </div>
+              <el-divider></el-divider>
+              <div v-if="item.circleReviewList" v-for="(review,listindex) in item.circleReviewList" :key="'child'+listindex" style="border-radius: 50%;margin: 10px">
+                <img :src="review.accountUrl" style="width: 50px;height: 50px;border-radius: 50%;float: left;margin-right: 10px">
+                <div style="float: left;">
+                  <span v-if="review.reply === null || review.reply === '' ">
+                    {{review.creator}} :
+                  </span>
+                  <span v-else>
+                    {{`${review.creator} 回复 ${review.reply || ''}  : `}}
+                  </span>
+                </div>
+                <div style="text-align: right">
+                  <span>{{review.createTime}}</span>
+                </div>
+                <div>{{review.reviewContent}}</div>
+                <div>
+                  <el-button type="text" @click="replyClick(review)">回复</el-button>
+                </div>
+              </div>
+              <div style="text-align: right">
+                <el-input type="textarea" autosize placeholder="请输入内容" v-model="item.huifu"></el-input>
+                <el-button size="mini" type="primary" @click="publishClick(item)">发表</el-button>
+              </div>
             </div>
           </div>
+         <div class="contentRight">
+           <img src="../../assets/img/dongtai.gif" style="width: 100%;height: 300px;margin-top: -100px">
+         </div>`
         </div>
-      </div>
     </div>
+    <comment-index v-if="parentData.showDialog" :parentData = "parentData" @closeDialog="closeDialog"></comment-index>
   </div>
 </template>
 
 <script>
+import CommentIndex from "../../components/friendDialog/commentIndex";
+import {getUser} from '@/api/user'
+import {submitCircle,fetchCircleList,publishReview} from '@/api/circle'
 export default {
-
+  components: {CommentIndex},
   data() {
     return {
-      textarea: "",
-      showPic: true,
-      fileList: [
-        "https://img2.baidu.com/it/u=2384869602,2949820686&fm=26&fmt=auto&gp=0.jpg",
-        "https://img0.baidu.com/it/u=2395702865,2826888350&fm=26&fmt=auto&gp=0.jpg",
-        "https://img2.baidu.com/it/u=2384869602,2949820686&fm=26&fmt=auto&gp=0.jpg",
-        "https://img0.baidu.com/it/u=2395702865,2826888350&fm=26&fmt=auto&gp=0.jpg",
-        "https://img2.baidu.com/it/u=2384869602,2949820686&fm=26&fmt=auto&gp=0.jpg",
-        "https://img0.baidu.com/it/u=2395702865,2826888350&fm=26&fmt=auto&gp=0.jpg",
-        "https://img0.baidu.com/it/u=2395702865,2826888350&fm=26&fmt=auto&gp=0.jpg",
-        "https://img0.baidu.com/it/u=2395702865,2826888350&fm=26&fmt=auto&gp=0.jpg",
-        "https://img0.baidu.com/it/u=2395702865,2826888350&fm=26&fmt=auto&gp=0.jpg"
-      ],
-      picList: []
+      portraitSrc:'',// 头像路径
+      huifu:'',// 回复
+      time:'',// 时间
+      textarea:'',
+      fileList:[],
+      imgList:[],
+      dynamicList:[
+        {
+          src:require('@/assets/img/001.jpg'),
+          id:101,
+          name:'第一个',
+          time:'2020-1-1',
+          text:'第一段话',
+          list:[
+            {name:'评论1',listtext:'第一个评论的话',time:'10.09',id:1111},
+            {name:'评论2',listtext:'第一个评论的话',time:'10.09',id:1222}
+            ]
+        },
+        {
+          src:require('@/assets/img/002.jpg'),
+          id:201,
+          name:'第二个',
+          time:'2020-1-1',
+          text:'第二段话',
+          list:[
+            {name:'评论1',listtext:'第一个评论的话',time:'10.09',id:2111},
+            {name:'评论2',listtext:'第一个评论的话',time:'10.09',id:2222}
+          ]
+        }
+        ],
+      parentData:{
+        showDialog: false
+      },
+      currentUser:{},
     };
   },
+  mounted() {
+    this.portraitSrc = require('@/assets/img/touxiang.png')
+    this.getCurrentUser()
+    this.getCircleList()
+  },
   methods: {
-    closeClick() {
-      this.showPic = false;
+    // 关闭后刷新
+    closeDialog(){
+      this.getCircleList()
     },
-    // 弹出菜单 上传成功/失败调用
-    handleChange(file, fileList) {
-      // this.fileList = fileList.slice(-3)
+    /** 获取用户信息 */
+    getCurrentUser(){
+      getUser().then(res => {
+        this.currentUser = res.data
+        this.portraitSrc = res.data.accountUrl
+      })
     },
-
-    // 上传成功,赋值附件
-    handSuccess(response, file, fileList) {
-      console.log("ewe", response.data.url);
-      // this.form1.url = response.data.url;
-      this.fileList.push(response.data.url);
-      this.showPic = true;
-      //
-    },
-    //  上传文件名
-    beforeUpload(file) {
-      var arr = [".jpg", ".png"]; //允许上传的文件类型
-      var flaig = arr.some(val => {
-        return file.name.endsWith(val);
-      });
-      if (!flaig) {
+    submitClick(){
+      submitCircle({text:this.textarea,urlList:this.imgList}).then(res => {
         this.$message({
-          message: "请上传正确的文件格式！！",
-          type: "error"
-        });
-
-        return false;
-      } else if (file.size > 1024 * 1024) {
+          type: res.code === 200 ? 'success' :'error',
+          message:res.data
+        })
+        this.getCircleList()
+      })
+    },
+    getCircleList(){
+      fetchCircleList().then(res => {
+        console.log(res.data)
+        this.dynamicList = res.data
+      })
+    },
+    // 发表
+    publishClick(item) {
+      console.log(item)
+      publishReview({circleId:item.id,reviewContent:item.huifu}).then(res => {
         this.$message({
-          message: "请上传1M以内的照片",
-          type: "error"
-        });
-        return false;
+          type: res.code === 200 ? 'success' :'error',
+          message:res.data
+        })
+        this.getCircleList()
+      })
+
+    },
+    //回复
+    replyClick(row) {
+      this.parentData.showDialog = true
+      this.parentData.row = row
+    },
+    handleAvatarSuccess(res, file) {
+      this.imgList.push(res.data.url)
+    },
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === 'image/jpeg' || file.type === 'image/png';
+      const isLt2M = file.size / 1024 / 1024 < 50;
+
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!');
       }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小总和不能超过 50MB!');
+      }
+      return isJPG && isLt2M;
     },
-    handlePreview(file) {
-      console.log(file);
-    },
-
-    closeDia() {
-      this.nameList = [];
-      this.urlList = [];
-      this.fileList = [];
-    },
-    afterRead(file) {
-      console.log("file", file);
-      // this.fileList.push(this.fileList.content)
-    }
   }
 };
 </script>
 
 <style scoped lang="scss">
-/depp/ .el-upload {
-  width: 100px !important;
-  height: 75px !important;
-}
-/deep/ .el-upload-dragger {
-  background-color: #fff;
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  width: 360px;
-  height: 180px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  width: 100px !important;
-  height: 75px !important;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 40px;
-  color: #ccc;
-}
-
-body {
-  background-color: #e6eaeb;
-}
-.bodAll {
+.bodAll{
   width: 100%;
-  background-image: url("../../assets/img/bj.jpg");
-  // background-image: url(//i.gtimg.cn/qzone/space_item/orig/3/72019_top.jpg);
+  position: relative;
+  height: 100%;
 }
-.circleFriends {
-  // background: pink;
-  width: 1200px;
-  height: 500px;
-  margin: 0 auto;
+  .divBox{
+    width: 80%;
+    margin: 0 auto;
+  }
+  .friendHeader{
+    width: 100%;
+    height: 150px;
+    margin-top: 8%;
+  }
+  .contentBox{
+    width: 100%;
+    height: 100px;
+    margin-top: 2%;
 
-  .user {
-    margin-top: 50px;
-    display: flex;
-    // justify-content: left;
-    // flex-direction: column;
-    width: 1200px;
-    .imgTi {
-      width: 300px;
-      height: 100%;
-    }
-    .titles {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: left;
-      margin-left: 20px;
-      // width: 300px;
-      // background: red;
-      .titel2 {
-        margin-top: 30px;
-      }
-    }
   }
-  .fbu {
-    display: flex;
+  .contentLeft{
+    width: 75%;
+    float: left;
   }
-  .picS {
-    background: white;
-    p {
-      display: flex;
-      justify-content: space-between;
-      padding: 25px 60px;
-    }
-    .picShow {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
-      img {
-        margin-right: 40px;
-        margin-top: 40px;
-      }
-    }
+  .leftMain{
+    margin-top: 3%;
+    border: 1px solid #dddd;
+    background-color: white;
   }
-  .picSTow{
-    background: white;
-
-    .picShowTow{
-      padding-bottom: 30px;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
-      img {
-        margin-right: 50px;
-        margin-top: 50px;
-      }
-    }
+  .contentRight{
+    width: 23%;
+    height: 100px;
+    float: right;
   }
-  .content {
-    margin-top: 100px;
-    background: white;
-
-    .dongt {
-      width: 1000px;
-      margin: 0 auto;
-      background: white;
-    }
-    .orderList {
-      margin: 50px auto;
-      width: 1200px;
-      background: rgb(255, 255, 255);
-      margin-bottom: 20px;
-      box-shadow: 0 0 10px #ccc;
-      .top {
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        padding-left: 30px;
-        height: 40px;
-        background: #eeeeee;
-      }
-      .bottom {
-        text-align: left;
-        text-indent: 30px;
-        width: 750px;
-        padding: 0 20px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        min-height: 45px;
-      }
-      //  display: flex;
-      //  justify-content: space-between;
-      img {
-        width: 100px;
-        height: 100px;
-      }
-    }
-  }
-}
 </style>

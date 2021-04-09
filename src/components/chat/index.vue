@@ -48,6 +48,7 @@ import AddAVMemberModal from "../emediaModal/addAVMemberModal";
 import MultiAVModal from "../emediaModal/multiAVModal";
 import GetGroupInfo from "../group/groupInfo.vue";
 import {getFriendList} from  '@/api/user';
+import {fetchMyGroup} from  '@/api/chatGroup';
 import GroupManagementIndex from "../groupManagement/groupManagementIndex";
 export default {
   components: {GroupManagementIndex},
@@ -115,6 +116,7 @@ export default {
     let blackList = this.$store.state.friendModule.blackList;
     this.$store.commit("changeUserList", blackList);
     this.getMyFriends()
+    this.getMyGroup();
 
   },
   updated() {
@@ -188,6 +190,11 @@ export default {
           this.friendList  = res.data
           console.log(this.friendList)
         }
+      })
+    },
+    getMyGroup(){
+      fetchMyGroup().then(res => {
+        console.log(res.data)
       })
     },
     handleOpen(key, keyPath) {

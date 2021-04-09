@@ -18,32 +18,32 @@
       border
       style="width: 100%">
       <el-table-column
-        prop="accountUrl"
-        label="头像"
+        prop="groupUrl"
+        label="群头像"
         width="180">
         <template slot-scope="scope">
           <div class="block"><el-avatar :size="50" :src="scope.row.accountUrl"></el-avatar></div>
         </template>
       </el-table-column>
       <el-table-column
-        prop="account"
-        label="账号"
+        prop="hxGroupId"
+        label="群  号:"
         width="180">
       </el-table-column>
       <el-table-column
-        prop="username"
-        label="昵称"
+        prop="groupName"
+        label="群名称:"
         width="180">
       </el-table-column>
       <el-table-column
-        prop="intro"
-        label="简介">
+        prop="groupIntro"
+        label="简  介:">
       </el-table-column>
       <el-table-column
         prop="intro"
-        label="操作">
+        label="操  作:">
         <template slot-scope="scope">
-          <el-button type="primary" @click="submitValue(scope.row.account)">添 加</el-button>
+          <el-button type="primary" @click="postJoinGroup(scope.row.hxGroupId)">添 加</el-button>
         </template>
       </el-table-column>
 
@@ -103,6 +103,7 @@
 import "./group.less";
 import { mapActions, mapGetters } from "vuex";
 import Vue from "vue";
+import {queryGroup } from '@/api/chatGroup'
 export default {
   props: ['joinGroup'],
   data() {
@@ -140,7 +141,9 @@ export default {
         .catch(_ => {});
     },
     queryGroup(){
-      alert('查询群组')
+      queryGroup({queryLike:this.form.name}).then(res => {
+        this.tableData = res.data
+      })
     },
     changeGroupModel() {
       this.$data.showGroupModel = !this.$data.showGroupModel;
@@ -169,11 +172,11 @@ export default {
 
       // this.chanegGroupInfoModel()
     },
-    postJoinGroup() {
+    postJoinGroup(groupId) {
       this.onJoinGroup({
-        select_groupid: this.$data.select_groupid
+        select_groupid: groupId
       });
-      this.changeGroupModel();
+      this.joinGroup.dialogVisible = false
     },
     select(key) {
       this.$data.select_groupid = key.groupid;

@@ -46,9 +46,6 @@
               <a-menu-item @click="createNewGroup">
                 <a href="javascript:;">创建群组</a>
               </a-menu-item>
-              <a-menu-item @click="ulClick('3')">
-                <a href="javascript:;">创建群组原生</a>
-              </a-menu-item>
             </a-menu>
           </a-dropdown>
         </span>
