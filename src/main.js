@@ -17,7 +17,9 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 
 import Router from 'vue-router'
+import iconfont from '@/assets/iconfont/font-icon/iconfont.css'
 
+Vue.prototype.iconfont = iconfont
 Vue.config.productionTip = false
 Vue.use(Antd)
 Vue.use(Vant);

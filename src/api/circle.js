@@ -27,4 +27,13 @@ export function publishReview(data){
   })
 }
 
+/** 更新朋友圈信息 */
+export function updateCircle(data){
+  return request({
+    url:'/circleOfFriend/update',
+    method:'PUT',
+    data
+  })
+}
+
 

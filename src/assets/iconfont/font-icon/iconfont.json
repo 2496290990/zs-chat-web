@@ -1,0 +1,16 @@
+{
+  "id": "2476583",
+  "name": "chat",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "19979438",
+      "name": "退回",
+      "font_class": "tuihui",
+      "unicode": "e61d",
+      "unicode_decimal": 58909
+    }
+  ]
+}

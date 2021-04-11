@@ -1,5 +1,8 @@
 <template>
   <div class="bodAll">
+    <div style="margin-top: 10px;font-size: 50px;">
+      <div class="iconfont icon-tuihui" style="top:1%;font-size: 40px;right: 1%;position: fixed;color: #ED8868" @click="goBack()"></div>
+    </div>
     <div class="divBox">
         <div class="friendHeader">
           <div style="width: 150px;height: 150px;float: left">
@@ -24,7 +27,7 @@
                       :file-list="fileList"
                       :on-success="handleAvatarSuccess"
                       :before-upload="beforeAvatarUpload"
-                      :limit="9">
+                      :limit="1">
                     <i class="el-icon-picture"></i>
                   </el-upload>
                 </template>
@@ -41,6 +44,10 @@
                   <img :src="item.accountUrl" style="width: 50px;height: 50px;border-radius: 50%;float: left">
                   <h4>{{item.creator}}</h4>
                   <span>{{item.createTime}}</span>
+                  <el-button type="text"
+                             v-if="item.utterer === currentUser.account "
+                             style="float: right;color:red;"
+                             @click="delCircle(item)">删除</el-button>
                 </div>
               <div style="margin: 10px">{{item.text}}</div>
               <div>
@@ -85,7 +92,8 @@
 <script>
 import CommentIndex from "../../components/friendDialog/commentIndex";
 import {getUser} from '@/api/user'
-import {submitCircle,fetchCircleList,publishReview} from '@/api/circle'
+import {submitCircle,fetchCircleList,publishReview,updateCircle} from '@/api/circle'
+
 export default {
   components: {CommentIndex},
   data() {
@@ -136,6 +144,18 @@ export default {
     closeDialog(){
       this.getCircleList()
     },
+    delCircle(item){
+      updateCircle({id:item.id,delFlag:"0"}).then(res => {
+        this.$message({
+          type: res.code === 200 ? 'success' : 'error',
+          message: res.data
+        })
+        this.getCircleList()
+      })
+    },
+    goBack() {
+      this.$router.push({name:'chatroom'})
+    },
     /** 获取用户信息 */
     getCurrentUser(){
       getUser().then(res => {
@@ -150,6 +170,8 @@ export default {
           message:res.data
         })
         this.getCircleList()
+        this.textarea = ''
+        this.imgList = []
       })
     },
     getCircleList(){
