@@ -4,7 +4,6 @@
       <!-- <div>{{type}}</div> -->
       <div>
         <a-icon type="left" class="user-goback" v-show="broken" @click="showUserList" />
-        <span>showType : {{showType}} 123 </span>
         <span>{{  `${activedKey[type].friendAccount } &nbsp;&nbsp; ${activedKey[type].groupid || ''}`}}</span>
         <a-icon v-if="type=='group'" type="ellipsis" class="user-ellipsis" @click="changeMenus" />
         <a-dropdown v-else-if="type=='contact'">
@@ -174,6 +173,7 @@ import _ from "lodash";
 // import EmediaModal from "../emediaModal/index";
 import GetGroupInfo from "../group/groupInfo.vue";
 import friendDetail from "../user/friendDetail";
+import {saveHistory } from '../../api/history'
 
 export default {
   data() {
@@ -421,6 +421,13 @@ export default {
         chatId: this.$data.activedKey[this.type],
         message: this.$data.message
       });
+      console.log(this.$data.activedKey[this.type],'group')
+      let history = {
+        text: this.$data.message,
+        recipient: this.showType === 'contact' ?  this.$data.activedKey[this.type].friendAccount : '',
+        groupId: this.showType === 'group' ?  this.$data.activedKey[this.type].groupid : '',
+      }
+      saveHistory(history)
       this.$data.message = "";
     },
 

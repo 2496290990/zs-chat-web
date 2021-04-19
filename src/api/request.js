@@ -52,7 +52,25 @@ AXIOS_BASE.interceptors.request.use(
   // 对请求错误处理
   (error) => Promise.reject(error)
 )
-
+AXIOS_BASE.interceptors.response.use(res => {
+    return res
+  },error => {
+    if(error.response.status === 401){
+      Message({
+        message: '登录状态失效，即将跳转登录！',
+        type: 'error',
+        duration: 3000,
+        onClose: () => {
+          localStorage.clear()
+          sessionStorage.clear()
+          router.push({
+            path: '/login'
+          })
+        }
+      })
+    }
+  }
+)
 // 响应拦截器
 /*AXIOS_BASE.interceptors.response.use(
   // 对响应数据处理

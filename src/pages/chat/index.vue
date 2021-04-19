@@ -40,9 +40,6 @@
               <a-menu-item @click="joinApply">
                 <a href="javascript:;">申请入群</a>
               </a-menu-item>
-              <a-menu-item @click="ulClick('2')">
-                <a href="javascript:;">申请入群原生</a>
-              </a-menu-item>
               <a-menu-item @click="createNewGroup">
                 <a href="javascript:;">创建群组</a>
               </a-menu-item>
@@ -68,10 +65,6 @@
           <a-icon type="team" class="navMenu-icon" />
           <span class="navMenu-text">群组</span>
           <div class="tip-style" v-if="getUnread('group').group">&nbsp;</div>
-        </a-menu-item>
-        <a-menu-item key="chatroom">
-          <a-icon type="usergroup-add" class="navMenu-icon" />
-          <span class="navMenu-text">聊天室</span>
         </a-menu-item>
         <a-menu-item key="circle">
           <a-icon type="cloud" class="navMenu-icon" />
