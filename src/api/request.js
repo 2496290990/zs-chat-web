@@ -19,7 +19,7 @@ import router from "@/router";
 const OPTION = {
   // 接口基础路径和配置代理的路径
   // url = base url + request url
-  baseURL: "http://localhost:8099",
+  baseURL: "http://10.129.103.46:8099",
   // baseURL: "https://hqt.cosmoplat.com",
   timeout: 60000,
   // 请求头

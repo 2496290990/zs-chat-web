@@ -33,7 +33,7 @@
         </span>
       </el-tree>
     </div>
-    <group-management-index v-if="parentData.showDialog" :parent-data="parentData"></group-management-index>
+    <group-management-index v-if="parentData.showDialog" :parent-data="parentData" @closeDia="closeDia"></group-management-index>
   </div>
 </template>
 
@@ -47,393 +47,413 @@ import _ from "lodash";
 import AddAVMemberModal from "../emediaModal/addAVMemberModal";
 import MultiAVModal from "../emediaModal/multiAVModal";
 import GetGroupInfo from "../group/groupInfo.vue";
-import {getFriendList} from  '@/api/user';
-import {fetchMyGroup} from  '@/api/chatGroup';
+import { getFriendList } from  "@/api/user";
+import { fetchMyGroup } from  "@/api/chatGroup";
 import GroupManagementIndex from "../groupManagement/groupManagementIndex";
-export default {
-  components: {GroupManagementIndex},
-  data() {
-    return {
-      show: false,
-      defaultProps: {
-        children: 'myFriendList',
-        label: 'nickname'
-      },
-      friendList:[],
-      activedKey: {
-        contact: "",
-        group: "",
-        chatroom: ""
-      },
-      showFirendMenus: false,
-      firendMenus: [
-        {
-          name: "加入黑名单",
-          id: "1",
-          icon: "add-o"
-        },
-        {
-          name: "删除好友",
-          id: "2",
-          icon: "delete"
-        },{
-          name:"编辑好友",
-          id:"3",
-          icon:"setting"
-        }
-      ],
-      message: "",
-      isHttps: window.location.protocol === "https:",
-      loadText: "加载更多",
-      status: {
-        sending: "发送中",
-        sent: "已发送",
-        read: "已读"
-      },
-      isCollapse: true,
-      unRead: "",
-      parentData:{
-        showDialog: false
-      }
-      // selectedKeys: [ this.getKey(this.activedKey[this.type]) ]
-    };
-  },
+export default{
+	components: { GroupManagementIndex },
+	data(){
+		return {
+			show: false,
+			defaultProps: {
+				children: "myFriendList",
+				label: "nickname"
+			},
+			friendList: [],
+			activedKey: {
+				contact: "",
+				group: "",
+				chatroom: ""
+			},
+			showFirendMenus: false,
+			firendMenus: [
+				{
+					name: "加入黑名单",
+					id: "1",
+					icon: "add-o"
+				},
+				{
+					name: "删除好友",
+					id: "2",
+					icon: "delete"
+				}, {
+					name: "编辑好友",
+					id: "3",
+					icon: "setting"
+				}
+			],
+			message: "",
+			isHttps: window.location.protocol === "https:",
+			loadText: "加载更多",
+			status: {
+				sending: "发送中",
+				sent: "已发送",
+				read: "已读"
+			},
+			isCollapse: true,
+			unRead: "",
+			parentData: {
+				showDialog: false
+			}
+			// selectedKeys: [ this.getKey(this.activedKey[this.type]) ]
+		};
+	},
 
-  beforeMount() {
-    if (this.type === "contact") {
-      setTimeout(() => {
-        this.onGetFirendBlack();
-        this.onGetContactUserList();
-      }, 100);
-    } else if (this.type === "group") {
-      this.onGetGroupUserList();
-    } else if (this.type === "chatroom") {
-      this.onGetChatroomUserList();
-    }
-  },
-  mounted() {
-    // 取到黑名单列表值将黑名单匹配用户列表进行筛选
-    let blackList = this.$store.state.friendModule.blackList;
-    this.$store.commit("changeUserList", blackList);
-    this.getMyFriends()
-    this.getMyGroup();
+	beforeMount(){
+		if(this.type === "contact"){
+			setTimeout(() => {
+				this.onGetFirendBlack();
+				this.onGetContactUserList();
+			}, 100);
+		}
+		else if(this.type === "group"){
+			this.onGetGroupUserList();
+		}
+		else if(this.type === "chatroom"){
+			this.onGetChatroomUserList();
+		}
+	},
+	mounted(){
+		// 取到黑名单列表值将黑名单匹配用户列表进行筛选
+		let blackList = this.$store.state.friendModule.blackList;
+		this.$store.commit("changeUserList", blackList);
+		this.getMyFriends();
+		this.getMyGroup();
 
-  },
-  updated() {
-    this.scollBottom();
-  },
-  computed: {
-    ...mapGetters({
-      contact: "onGetContactUserList",
-      group: "onGetGroupUserList",
-      chatroom: "onGetChatroomUserList",
-      msgList: "onGetCurrentChatObjMsg"
-    }),
-    userList() {
-      return {
-        contact: this.contact.filter(item => {
-          if (item && !this.blackList.includes(item.name)) {
-            return item;
-          }
-        }),
-        group: this.group,
-        chatroom: this.chatroom
-      };
+	},
+	updated(){
+		this.scollBottom();
+	},
+	computed: {
+		...mapGetters({
+			contact: "onGetContactUserList",
+			group: "onGetGroupUserList",
+			chatroom: "onGetChatroomUserList",
+			msgList: "onGetCurrentChatObjMsg"
+		}),
+		userList(){
+			return {
+				contact: this.contact.filter(item => {
+					if(item && !this.blackList.includes(item.name)){
+						return item;
+					}
+				}),
+				group: this.group,
+				chatroom: this.chatroom
+			};
+		},
+		blackList(){
+			return Object.keys(this.$store.state.friendModule.blackList);
+		},
+		chatList(){
+			return this.$store.state.chat.msgList;
+		},
+		selectedKeys(){
+			return [this.getKey(this.activedKey[this.type]) || ""];
+		}
+	},
+	props: [
+		"type", // 聊天类型 contact, group, chatroom
+		"username", // 选中的聊天对象
+		"select"
+	],
+	methods: {
+		openClick(){
+			this.parentData.showDialog = true;
+			this.parentData.data = this.data;
+		},
+		// 新加的
+		handleNodeClick(data){
+			console.log(data, "data");
+			this.$data.selectedKeys = [data.id];
+			this.select(data);
+			this.$data.activedKey[this.type] = data;
+		},
+		...mapActions([
+			"onGetContactUserList",
+			"onGetGroupUserList",
+			"onGetChatroomUserList",
+			"onGetCurrentChatObjMsg",
+			"onSendText",
+			"onCallVideo",
+			"onCallVoice",
+			"getGroupMembers",
+			"getHistoryMessage",
+			"onAddBlack",
+			"onDelteFirend",
+			"onGetGroupinfo",
+			"recallMessage",
+			"onGetGroupBlack",
+			"onGetFirendBlack"
+		]),
+		getMyFriends(){
+			getFriendList().then(res => {
+				if(res.code === 200){
+					this.friendList  = res.data;
+					console.log(this.friendList);
+				}
+			});
+		},
+    closeDia() {
+		  this.getMyFriends()
     },
-    blackList() {
-      return Object.keys(this.$store.state.friendModule.blackList);
-    },
-    chatList() {
-      return this.$store.state.chat.msgList;
-    },
-    selectedKeys() {
-      return [this.getKey(this.activedKey[this.type]) || ""];
-    }
-  },
-  props: [
-    "type", // 聊天类型 contact, group, chatroom
-    "username", // 选中的聊天对象
-    "select"
-  ],
-  methods: {
-    openClick() {
-      this.parentData.showDialog = true
-      this.parentData.data = this.data
-    },
-    // 新加的
-    handleNodeClick(data) {
-      console.log(data,'data');
-      this.$data.selectedKeys = [data.id];
-      this.select(data);
-      this.$data.activedKey[this.type] = data;
-    },
-    ...mapActions([
-      "onGetContactUserList",
-      "onGetGroupUserList",
-      "onGetChatroomUserList",
-      "onGetCurrentChatObjMsg",
-      "onSendText",
-      "onCallVideo",
-      "onCallVoice",
-      "getGroupMembers",
-      "getHistoryMessage",
-      "onAddBlack",
-      "onDelteFirend",
-      "onGetGroupinfo",
-      "recallMessage",
-      "onGetGroupBlack",
-      "onGetFirendBlack"
-    ]),
-    getMyFriends(){
-      getFriendList().then(res => {
-        if(res.code === 200){
-          this.friendList  = res.data
-          console.log(this.friendList)
-        }
-      })
-    },
-    getMyGroup(){
-      fetchMyGroup().then(res => {
-        console.log(res.data)
-      })
-    },
-    handleOpen(key, keyPath) {
-      // console.log(key, keyPath);
-    },
-    handleClose(key, keyPath) {
-      // console.log(key, keyPath);
-    },
-    getKey(item) {
-      let key = "";
-      switch (this.type) {
-        case "contact":
-          key = item.name;
-          break;
-        case "group":
-          key = item.groupid;
-          break;
-        case "chatroom":
-          key = item.id;
-          break;
-        default:
-          break;
-      }
-      return key;
-    },
-    getUnreadNum(item) {
-      const { name, params } = this.$route;
-      const chatList = this.chatList[name];
-      let userId = "";
-      if (name == "contact") {
-        userId = item.name;
-      } else if (name == "group") {
-        userId = item.groupid;
-      } else {
-        userId = item.id;
-        return 0;
-      }
-      const currentMsgs = chatList[userId] || [];
-      let unReadNum = 0;
-      currentMsgs.forEach(msg => {
-        if (msg.status !== "read" && msg.status !== "recall" && !msg.bySelf) {
-          unReadNum++;
-        }
-      });
-      return unReadNum;
-    },
-    select2(key, index) {
-      console.log(key,index,'key')
-      this.$data.selectedKeys = [index];
-      this.select(key);
-      this.$data.activedKey[this.type] = key;
-    },
-    loadMoreMsgs() {
-      const me = this;
-      const success = function(msgs) {
-        if (msgs.length === 0) {
-          me.$data.loadText = "已无更多数据";
-        }
-      };
-      let name = "";
-      let isGroup = false;
-      if (this.type === "contact") {
-        name = this.$data.activedKey[this.type].name;
-      } else if (this.type === "group") {
-        name = this.$data.activedKey[this.type].groupid;
-        isGroup = true;
-      } else if (this.type === "chatroom") {
-        name = this.$data.activedKey[this.type].id;
-        isGroup = true;
-      }
-      this.getHistoryMessage({
-        name,
-        isGroup,
-        success
-      });
-    },
-    changeMenus() {
-      if (this.type === "contact") {
-        this.$data.showFirendMenus = !this.$data.showFirendMenus;
-      } else if (this.type === "group") {
-        this.$refs.groupInfoModel.chengeInfoModel();
-        this.getGroupInfo();
-      }
-    },
+		getMyGroup(){
+			fetchMyGroup().then(res => {
+				console.log(res.data);
+			});
+		},
+		handleOpen(key, keyPath){
+			// console.log(key, keyPath);
+		},
+		handleClose(key, keyPath){
+			// console.log(key, keyPath);
+		},
+		getKey(item){
+			let key = "";
+			switch(this.type){
+			case "contact":
+				key = item.name;
+				break;
+			case "group":
+				key = item.groupid;
+				break;
+			case "chatroom":
+				key = item.id;
+				break;
+			default:
+				break;
+			}
+			return key;
+		},
+		getUnreadNum(item){
+			const { name, params } = this.$route;
+			const chatList = this.chatList[name];
+			let userId = "";
+			if(name == "contact"){
+				userId = item.name;
+			}
+			else if(name == "group"){
+				userId = item.groupid;
+			}
+			else{
+				userId = item.id;
+				return 0;
+			}
+			const currentMsgs = chatList[userId] || [];
+			let unReadNum = 0;
+			currentMsgs.forEach(msg => {
+				if(msg.status !== "read" && msg.status !== "recall" && !msg.bySelf){
+					unReadNum++;
+				}
+			});
+			return unReadNum;
+		},
+		select2(key, index){
+			console.log(key, index, "key");
+			this.$data.selectedKeys = [index];
+			this.select(key);
+			this.$data.activedKey[this.type] = key;
+		},
+		loadMoreMsgs(){
+			const me = this;
+			const success = function(msgs){
+				if(msgs.length === 0){
+					me.$data.loadText = "已无更多数据";
+				}
+			};
+			let name = "";
+			let isGroup = false;
+			if(this.type === "contact"){
+				name = this.$data.activedKey[this.type].name;
+			}
+			else if(this.type === "group"){
+				name = this.$data.activedKey[this.type].groupid;
+				isGroup = true;
+			}
+			else if(this.type === "chatroom"){
+				name = this.$data.activedKey[this.type].id;
+				isGroup = true;
+			}
+			this.getHistoryMessage({
+				name,
+				isGroup,
+				success
+			});
+		},
+		changeMenus(){
+			if(this.type === "contact"){
+				this.$data.showFirendMenus = !this.$data.showFirendMenus;
+			}
+			else if(this.type === "group"){
+				this.$refs.groupInfoModel.chengeInfoModel();
+				this.getGroupInfo();
+			}
+		},
 
-    getGroupInfo() {
-      this.onGetGroupinfo({
-        select_id: this.$data.activedKey[this.type].groupid
-      });
-    },
-    onSendTextMsg() {
-      this.onSendText({
-        chatType: this.type,
-        chatId: this.$data.activedKey[this.type],
-        message: this.$data.message
-      });
-      this.$data.message = "";
-    },
+		getGroupInfo(){
+			this.onGetGroupinfo({
+				select_id: this.$data.activedKey[this.type].groupid
+			});
+		},
+		onSendTextMsg(){
+			this.onSendText({
+				chatType: this.type,
+				chatId: this.$data.activedKey[this.type],
+				message: this.$data.message
+			});
+			this.$data.message = "";
+		},
 
-    selectEmoji(v) {
-      this.$data.message = v;
-      this.$refs.txtDom.focus();
-    },
+		selectEmoji(v){
+			this.$data.message = v;
+			this.$refs.txtDom.focus();
+		},
 
-    customEmoji(value) {
-      return `<img src="../../../static/faces/${value}" style="width:20px"/>`;
-    },
+		customEmoji(value){
+			return `<img src="../../../static/faces/${value}" style="width:20px"/>`;
+		},
 
-    renderTxt(txt = "") {
-      let rnTxt = [];
-      let match = null;
-      const regex = /(\[.*?\])/g;
-      let start = 0;
-      let index = 0;
-      while ((match = regex.exec(txt))) {
-        index = match.index;
-        if (index > start) {
-          rnTxt.push(txt.substring(start, index));
-        }
-        if (match[1] in emoji.obj) {
-          const v = emoji.obj[match[1]];
-          rnTxt.push(this.customEmoji(v));
-        } else {
-          rnTxt.push(match[1]);
-        }
-        start = index + match[1].length;
-      }
-      rnTxt.push(txt.substring(start, txt.length));
-      return rnTxt.toString().replace(/,/g, "");
-    },
+		renderTxt(txt = ""){
+			let rnTxt = [];
+			let match = null;
+			const regex = /(\[.*?\])/g;
+			let start = 0;
+			let index = 0;
+			while((match = regex.exec(txt))){
+				index = match.index;
+				if(index > start){
+					rnTxt.push(txt.substring(start, index));
+				}
+				if(match[1] in emoji.obj){
+					const v = emoji.obj[match[1]];
+					rnTxt.push(this.customEmoji(v));
+				}
+				else{
+					rnTxt.push(match[1]);
+				}
+				start = index + match[1].length;
+			}
+			rnTxt.push(txt.substring(start, txt.length));
+			return rnTxt.toString().replace(/,/g, "");
+		},
 
-    callVideo() {
+		callVideo(){
 
-      if (this.type == "contact") {
-        this.$refs.emediaModal.showEmediaModal();
-        this.$refs.emediaModal.showCallerWait(
-          this.$data.activedKey[this.type].name
-        );
-        const videoSetting = JSON.parse(localStorage.getItem("videoSetting"));
-        const recMerge = (videoSetting && videoSetting.recMerge) || false;
-        const rec = (videoSetting && videoSetting.rec) || false;
-        this.onCallVideo({
-          chatType: this.type,
-          to: this.$data.activedKey[this.type].name,
-          rec,
-          recMerge
-        });
-      } else if (this.type == "group") {
-        this.getGroupMembers(this.$data.activedKey[this.type].groupid);
-        this.$refs.addAvMembertModal.show();
-      }
-    },
-    callVoice() {
-      this.$refs.emediaModal.showEmediaModal();
-      this.$refs.emediaModal.showCallerWait(
-        this.$data.activedKey[this.type].name
-      );
-      const videoSetting = JSON.parse(localStorage.getItem("videoSetting"));
-      const recMerge = (videoSetting && videoSetting.recMerge) || false;
-      const rec = (videoSetting && videoSetting.rec) || false;
-      this.onCallVoice({
-        chatType: this.type,
-        to: this.$data.activedKey[this.type].name,
-        rec,
-        recMerge
-      });
-    },
-    readablizeBytes(value) {
-      let s = ["Bytes", "KB", "MB", "GB", "TB", "PB"];
-      let e = Math.floor(Math.log(value) / Math.log(1024));
-      return (value / Math.pow(1024, Math.floor(e))).toFixed(2) + " " + s[e];
-    },
+			if(this.type == "contact"){
+				this.$refs.emediaModal.showEmediaModal();
+				this.$refs.emediaModal.showCallerWait(
+					this.$data.activedKey[this.type].name
+				);
+				const videoSetting = JSON.parse(localStorage.getItem("videoSetting"));
+				const recMerge = (videoSetting && videoSetting.recMerge) || false;
+				const rec = (videoSetting && videoSetting.rec) || false;
+				this.onCallVideo({
+					chatType: this.type,
+					to: this.$data.activedKey[this.type].name,
+					rec,
+					recMerge
+				});
+			}
+			else if(this.type == "group"){
+				this.getGroupMembers(this.$data.activedKey[this.type].groupid);
+				this.$refs.addAvMembertModal.show();
+			}
+		},
+		callVoice(){
+			this.$refs.emediaModal.showEmediaModal();
+			this.$refs.emediaModal.showCallerWait(
+				this.$data.activedKey[this.type].name
+			);
+			const videoSetting = JSON.parse(localStorage.getItem("videoSetting"));
+			const recMerge = (videoSetting && videoSetting.recMerge) || false;
+			const rec = (videoSetting && videoSetting.rec) || false;
+			this.onCallVoice({
+				chatType: this.type,
+				to: this.$data.activedKey[this.type].name,
+				rec,
+				recMerge
+			});
+		},
+		readablizeBytes(value){
+			let s = ["Bytes", "KB", "MB", "GB", "TB", "PB"];
+			let e = Math.floor(Math.log(value) / Math.log(1024));
+			return (value / Math.pow(1024, Math.floor(e))).toFixed(2) + " " + s[e];
+		},
 
-    // TODO 可以抽离到utils
-    renderTime(time) {
-      const nowStr = new Date();
-      const localStr = time ? new Date(time) : nowStr;
-      const localMoment = moment(localStr);
-      const localFormat = localMoment.format("MM-DD hh:mm A");
-      return localFormat;
-    },
-    getLastMsg(item) {
-      const { name, params } = this.$route;
-      const chatList = this.chatList[name];
-      let userId = "";
-      if (name == "contact") {
-        userId = item.name;
-      } else if (name == "group") {
-        userId = item.groupid;
-      } else {
-        userId = item.id;
-      }
-      const currentMsgs = chatList[userId] || [];
-      let lastMsg = "";
-      let lastType =
+		// TODO 可以抽离到utils
+		renderTime(time){
+			const nowStr = new Date();
+			const localStr = time ? new Date(time) : nowStr;
+			const localMoment = moment(localStr);
+			const localFormat = localMoment.format("MM-DD hh:mm A");
+			return localFormat;
+		},
+		getLastMsg(item){
+			const { name, params } = this.$route;
+			const chatList = this.chatList[name];
+			let userId = "";
+			if(name == "contact"){
+				userId = item.name;
+			}
+			else if(name == "group"){
+				userId = item.groupid;
+			}
+			else{
+				userId = item.id;
+			}
+			const currentMsgs = chatList[userId] || [];
+			let lastMsg = "";
+			let lastType =
         currentMsgs.length && currentMsgs[currentMsgs.length - 1].type;
-      if (currentMsgs.length) {
-        if (lastType === "img") {
-          lastMsg = "[image]";
-        } else if (lastType === "file") {
-          lastMsg = currentMsgs[currentMsgs.length - 1].filename;
-        } else if (lastType === "audio") {
-          lastMsg = "[audio]";
-        } else if (lastType === "vidio") {
-          lastMsg = "[vidio]";
-        } else {
-          lastMsg = currentMsgs[currentMsgs.length - 1].msg;
-        }
-      }
-      const msgTime = currentMsgs.length
-        ? this.renderTime(currentMsgs[currentMsgs.length - 1].time)
-        : "";
-      return {
-        lastMsg,
-        msgTime
-      };
-    },
-    scollBottom() {
-      setTimeout(() => {
-        const dom = this.$refs.msgContent;
-        if (!dom) return;
-        dom.scrollTop = dom.scrollHeight;
-      }, 0);
-    },
-    handleCommand(item) {
-      let name = "";
-      if (this.type === "contact") {
-        name = this.$data.activedKey[this.type].name;
-      } else if (this.type === "group") {
-        name = this.$data.activedKey[this.type].groupid;
-      } else if (this.type === "chatroom") {
-        name = this.$data.activedKey[this.type].id;
-      }
-      this.recallMessage({
-        to: name,
-        message: item
-      });
-    }
-  }
+			if(currentMsgs.length){
+				if(lastType === "img"){
+					lastMsg = "[image]";
+				}
+				else if(lastType === "file"){
+					lastMsg = currentMsgs[currentMsgs.length - 1].filename;
+				}
+				else if(lastType === "audio"){
+					lastMsg = "[audio]";
+				}
+				else if(lastType === "vidio"){
+					lastMsg = "[vidio]";
+				}
+				else{
+					lastMsg = currentMsgs[currentMsgs.length - 1].msg;
+				}
+			}
+			const msgTime = currentMsgs.length
+				? this.renderTime(currentMsgs[currentMsgs.length - 1].time)
+				: "";
+			return {
+				lastMsg,
+				msgTime
+			};
+		},
+		scollBottom(){
+			setTimeout(() => {
+				const dom = this.$refs.msgContent;
+				if(!dom) return;
+				dom.scrollTop = dom.scrollHeight;
+			}, 0);
+		},
+		handleCommand(item){
+			let name = "";
+			if(this.type === "contact"){
+				name = this.$data.activedKey[this.type].name;
+			}
+			else if(this.type === "group"){
+				name = this.$data.activedKey[this.type].groupid;
+			}
+			else if(this.type === "chatroom"){
+				name = this.$data.activedKey[this.type].id;
+			}
+			this.recallMessage({
+				to: name,
+				message: item
+			});
+		}
+	}
 };
 </script>
 
