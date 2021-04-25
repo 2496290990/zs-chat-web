@@ -35,3 +35,11 @@ export function groupApply(data){
     data
   })
 }
+
+export function delGroup(data){
+  return request({
+    url:'/chatGroup/del',
+    method:'delete',
+    data
+  })
+}

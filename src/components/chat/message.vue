@@ -11,10 +11,23 @@
             <a-icon type="ellipsis" />
           </a>
           <a-menu slot="overlay">
+          <!--
             <a-menu-item @click="menuClick('1')">
               <a href="javascript:;">加入黑名单</a>
             </a-menu-item>
             <a-menu-item @click="menuClick('2')">
+              <a href="javascript:;">删除好友</a>
+            </a-menu-item>
+            -->
+
+            <a-menu-item v-if="!isBlock" @click="joinBlock(activedKey[type].friendAccount)">
+              <a href="javascript:;">加入黑名单</a>
+            </a-menu-item>
+            <a-menu-item v-else @click="removeBlock(activedKey[type].friendAccount)">
+              <a href="javascript:;">移出黑名单</a>
+            </a-menu-item>
+
+            <a-menu-item @click="delFriend(activedKey[type].friendAccount)">
               <a href="javascript:;">删除好友</a>
             </a-menu-item>
             <a-menu-item @click="editFriend(activedKey[type].friendAccount)">
@@ -169,15 +182,17 @@ import { mapActions, mapGetters } from "vuex";
 
 import moment from "moment";
 import _ from "lodash";
-// import MultiAVModal from "../emediaModal/multiAVModal";
-// import EmediaModal from "../emediaModal/index";
-import GetGroupInfo from "../group/groupInfo.vue";
-import friendDetail from "../user/friendDetail";
+// import MultiAVModal from "../emediaModal/multiAVModal"
+// import EmediaModal from "../emediaModal/index"
+import GetGroupInfo from "../group/groupInfo.vue"
+import friendDetail from "../user/friendDetail"
 import {saveHistory } from '../../api/history'
+import {joinBlock,removeBlock,getBlockStatus,updateFriend} from "../../api/user"
 
 export default {
   data() {
     return {
+      friendAccount:'',
       activedKey: {
         contact: "",
         group: "",
@@ -197,7 +212,8 @@ export default {
         title:'',
         account:''
       },
-      showType:'contact'
+      showType:'contact',
+      isBlock:true
     };
   },
 
@@ -256,6 +272,72 @@ export default {
       "recallMessage",
       "onGetGroupBlack"
     ]),
+    /** 获取好友黑名单状态状态 */
+    getBlockStatus(){
+      let account = this.activedKey[this.type].friendAccount
+      getBlockStatus(account).then(res => {
+        this.isBlock = res.data
+      })
+      console.log(`${account}---${this.isBlock ? '是黑名单' : '不是黑名单'}`,'黑名单状态')
+    },
+    /** 拉取黑名单 */
+    joinBlock(account){
+      this.$confirm("你确定要删除吗，请三思,后果自负", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+
+          joinBlock({friendAccount:account}).then(res => {
+            this.$message({
+              type:res.code === 200 ? 'success' : 'error',
+              message:res.data
+            })
+            this.onAddBlack({
+              userId: account
+            });
+            this.$data.activedKey.contact = "";
+            this.$router.back()
+          })
+
+        })
+        .catch(() => {
+          this.$message('取消操作')
+        })
+
+
+    },
+    /** 移出黑名单 */
+    removeBlock(account){
+      this.$confirm("即将将该好友移出黑名单，请确认", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          removeBlock({friendAccount:account}).then(res => {
+            this.$message({
+              type:res.code === 200 ? 'success' : 'error',
+              message:res.data
+            })
+            this.$router.back()
+          })
+        })
+        .catch(() => {
+          this.$message('取消操作')
+        })
+    },
+    /** 删除好友 */
+    delFriend(account){
+      updateFriend({friendAccount:account,delFlag:'0'}).then(res => {
+        this.$message({
+          type: res.code === 200 ? 'sucess' : 'error',
+          message: res.data
+        })
+        this.$router.back()
+      })
+    },
     getKey(item, type) {
       let key = "";
       this.showType = type
@@ -319,7 +401,8 @@ export default {
         }, 100);
 
         if (!this.msgList) {
-          console.log(key.friendAccount +"account")
+          this.friendAccount = key.friendAccount
+          this.getBlockStatus()
           this.getHistoryMessage({ name: key.friendAccount, isGroup: false });
         }
       } else if (this.type === "chatroom") {
@@ -412,6 +495,10 @@ export default {
       });
     },
     onSendTextMsg() {
+      if(this.isBlock){
+        this.$message.warning('您已将对方拉入黑名单，请移出后重新发送')
+        return
+      }
       if (this.$data.message == "" || this.$data.message == "\n") {
         this.$data.message = "";
         return;

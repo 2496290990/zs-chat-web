@@ -100,9 +100,43 @@ export function operationApply(data){
   })
 }
 
+/** 修改密码 */
 export function changePwd(data){
   return request({
     url:'/user/updatePwd',
+    method:'put',
+    data
+  })
+}
+
+/** 加入小黑屋 */
+export function joinBlock(data){
+  return request({
+    url:'/myFriend/joinBlock',
+    method:'put',
+    data
+  })
+}
+
+/** 加入小黑屋 */
+export function removeBlock(data){
+  return request({
+    url:'/myFriend/removeBlock',
+    method:'put',
+    data
+  })
+}
+
+export function getBlockStatus(data){
+  return request({
+    url:`/myFriend/block/${data}`,
+    method:'get'
+  })
+}
+
+export function updateFriend(data){
+  return request({
+    url:'/myFriend',
     method:'put',
     data
   })

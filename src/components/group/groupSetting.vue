@@ -15,6 +15,7 @@
           <li v-if="showAdminIcon">
             <i class="el-icon-edit-outline" @click="updatedGroupInfo">修改群信息</i>
             <i class="el-icon-warning" @click="changeBlackModel">群组黑名单</i>
+
             <i class="el-icon-switch-button" @click="dissolution">解散群组</i>
           </li>
 
@@ -39,6 +40,8 @@
 import { mapActions } from "vuex";
 import "./group.less";
 import GroupBlack from "./groupBlack.vue";
+import {delGroup} from "../../api/chatGroup";
+
 export default {
   data() {
     return {
@@ -125,12 +128,28 @@ export default {
       });
     },
     dissolution() {
-      this.onDissolveGroup({
-        select_id: this.$store.state.group.groupInfo.gid,
-        callback: () => {
-          this.closeModa();
-        }
-      });
+      let groupId = this.$store.state.group.groupInfo.gid
+      this.$confirm("你确定要解散吗，请三思,后果自负", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      }).then(() => {
+          delGroup({hxGroupId:groupId}).then(res => {
+            this.$message({
+              type: res.code === 200 ? 'success' : 'error',
+              message: res.data
+            })
+            this.onDissolveGroup({
+              select_id: groupId,
+              callback: () => {
+
+              }
+            })
+            this.$router.push('/contact')
+          })
+      }).catch(() => {
+          this.$message('取消操作')
+      })
     },
     closeModa() {
       // 退出群组 or 解散群组 关闭弹窗
